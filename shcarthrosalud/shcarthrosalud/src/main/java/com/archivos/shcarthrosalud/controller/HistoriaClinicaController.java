@@ -2,6 +2,7 @@ package com.archivos.shcarthrosalud.controller;
 
 import com.archivos.shcarthrosalud.dto.HistoriaClinicaDTO;
 import com.archivos.shcarthrosalud.entity.HistoriaClinica;
+import com.archivos.shcarthrosalud.enums.EstadoHistoria;
 import com.archivos.shcarthrosalud.services.HistoriaClinicaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,5 +61,11 @@ public class HistoriaClinicaController {
 
         List<HistoriaClinica> resultados = historiaClinicaService.buscarPorNombreCompleto(apellidoPaterno, apellidoMaterno, nombres);
         return ResponseEntity.ok(resultados);
+    }
+
+    @PatchMapping("/{id}/cambiar-estado")
+    public ResponseEntity<HistoriaClinica> actualizarEstado(@PathVariable Long id, @RequestParam EstadoHistoria nuevoEstado,@RequestParam  String solicitadoPor){
+    HistoriaClinica actualizada = historiaClinicaService.cambiarEstadoHC(id,nuevoEstado,solicitadoPor);
+    return ResponseEntity.ok(actualizada);
     }
 }

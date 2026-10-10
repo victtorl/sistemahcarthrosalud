@@ -20,9 +20,9 @@ public interface HistoriaClinicaRepository extends JpaRepository<HistoriaClinica
 
 
     @Query("SELECT h FROM HistoriaClinica h WHERE " +
-            "(:apellidoPaterno IS NULL OR LOWER(h.apellidoPaterno) LIKE LOWER(CONCAT('%', :apellidoPaterno, '%'))) AND " +
-            "(:apellidoMaterno IS NULL OR LOWER(h.apellidoMaterno) LIKE LOWER(CONCAT('%', :apellidoMaterno, '%'))) AND " +
-            "(:nombres IS NULL OR LOWER(h.nombres) LIKE LOWER(CONCAT('%', :nombres, '%')))")
+            "(:apellidoPaterno IS NULL OR LOWER(h.apellidoPaterno) LIKE LOWER(CONCAT( :apellidoPaterno, '%'))) AND " +
+            "(:apellidoMaterno IS NULL OR LOWER(h.apellidoMaterno) LIKE LOWER(CONCAT( :apellidoMaterno, '%'))) AND " +
+            "(:nombres IS NULL OR LOWER(h.nombres) LIKE LOWER(CONCAT( :nombres, '%')))")
     List<HistoriaClinica> buscarPorNombreCompleto(
             @Param("apellidoPaterno") String apellidoPaterno,
             @Param("apellidoMaterno") String apellidoMaterno,

@@ -3,6 +3,7 @@ package com.archivos.shcarthrosalud.services.impl;
 import com.archivos.shcarthrosalud.dto.HistoriaClinicaDTO;
 import com.archivos.shcarthrosalud.entity.HistoriaClinica;
 import com.archivos.shcarthrosalud.entity.Usuario;
+import com.archivos.shcarthrosalud.enums.EstadoHistoria;
 import com.archivos.shcarthrosalud.repository.HistoriaClinicaRepository;
 import com.archivos.shcarthrosalud.repository.UsuarioRepository;
 import com.archivos.shcarthrosalud.services.HistoriaClinicaService;
@@ -22,21 +23,7 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Override
-    public HistoriaClinica crearHistoriaClinica(HistoriaClinica historia) {
-        // 1. Obtienes la primera letra del apellido paterno (ejemplo: "Perez" -> "P")
-        String prefijo = historia.getApellidoPaterno().substring(0, 1).toUpperCase();
 
-        // 2. ¡AQUÍ ES DONDE LLAMAS A TU MÉTODO DEL REPOSITORY!
-        long totalExistentes = historiaClinicaRepository.countByApellidoPaternoStartingWith(prefijo);
-
-        // 3. Con el resultado que te devuelve SQL Server, generas el código (ejemplo: P001, P002)
-        String codigoGenerado = String.format("%s%03d", prefijo, totalExistentes + 1);
-        historia.setCodigoHc(codigoGenerado);
-
-        // 4. Guardas la historia en la base de datos
-        return historiaClinicaRepository.save(historia);
-    }
 
     @Override
     public List<HistoriaClinica> listarHistoriaClinica() {
@@ -67,6 +54,8 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         hc.setApellidoPaterno(dto.apellidoPaterno);
         hc.setApellidoMaterno(dto.apellidoMaterno);
         hc.setNombres(dto.nombres);
+        hc.setEstado(dto.estado != null ? dto.estado : EstadoHistoria.DISPONIBLE);
+        hc.setSolicitadoPor(dto.solicitadoPor);
 
 
         // 3. Generar el código correlativo de Historia Clínica
@@ -109,6 +98,25 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
 
         // Formatear el número con 3 dígitos rellenos de ceros (ej: 12 -> "012")
         return primeraLetra + String.format("%03d", siguienteNumero); // Resultado: "A012"
+    }
+
+    public HistoriaClinica cambiarEstadoHC(Long idHistoria, EstadoHistoria nuevoEstado,String solicitadoPor){
+
+        HistoriaClinica hc = historiaClinicaRepository.findById(idHistoria)
+                .orElseThrow(()-> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No se encontró la historia con ID" + idHistoria
+                ));
+
+        if(hc.getEstado() == EstadoHistoria.PRESTADO){
+            hc.setSolicitadoPor(null);
+        }else{
+            hc.setSolicitadoPor(solicitadoPor);
+        }
+
+        hc.setEstado(nuevoEstado);
+
+        return historiaClinicaRepository.save(hc);
     }
 
 

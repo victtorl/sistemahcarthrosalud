@@ -2,6 +2,7 @@ package com.archivos.shcarthrosalud.entity;
 
 import com.archivos.shcarthrosalud.entity.Usuario;
 
+import com.archivos.shcarthrosalud.enums.EstadoHistoria;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,5 +49,13 @@ public class HistoriaClinica {
     @JoinColumn(name = "id_usuario", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Usuario usuario;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado",length = 20)
+    private EstadoHistoria estado = EstadoHistoria.DISPONIBLE;
+
+
+    @Column(name = "solicitado_por",length = 50,nullable = true)
+    private String solicitadoPor;
 
 }

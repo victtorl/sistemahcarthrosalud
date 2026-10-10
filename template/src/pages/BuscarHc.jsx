@@ -18,6 +18,7 @@ import DashboardCard11 from '../partials/dashboard/DashboardCard11';
 import DashboardCard12 from '../partials/dashboard/DashboardCard12';
 import DashboardCard13 from '../partials/dashboard/DashboardCard13';
 import Banner from '../partials/Banner';
+import BuscadorPaciente from '../components/BuscadorPacientes';
 
 function Dashboard() {
 
@@ -43,7 +44,8 @@ function Dashboard() {
 
               {/* Left: Title */}
               <div className="mb-4 sm:mb-0">
-                <h1 className="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold">Buscar Historia Clínica</h1>
+                <h1 className="text-2xl md:text-3xl text-gray-800 dark:text-gray-100 font-bold pb-10">Buscar Historia Clínica</h1>
+                <BuscadorPaciente/>
               </div>
 
               {/* Right: Actions */}
