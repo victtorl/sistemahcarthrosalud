@@ -54,7 +54,6 @@ public class HistoriaClinica {
     @Column(name = "estado",length = 20)
     private EstadoHistoria estado = EstadoHistoria.DISPONIBLE;
 
-
     @Column(name = "solicitado_por",length = 50,nullable = true)
     private String solicitadoPor;
 
