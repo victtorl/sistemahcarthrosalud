@@ -2,11 +2,14 @@ package com.archivos.shcarthrosalud.services.impl;
 
 import com.archivos.shcarthrosalud.dto.HistoriaClinicaDTO;
 import com.archivos.shcarthrosalud.entity.HistoriaClinica;
+import com.archivos.shcarthrosalud.entity.PrestamoHistoria;
 import com.archivos.shcarthrosalud.entity.Usuario;
 import com.archivos.shcarthrosalud.enums.EstadoHistoria;
 import com.archivos.shcarthrosalud.repository.HistoriaClinicaRepository;
+import com.archivos.shcarthrosalud.repository.PrestamoHistoriaRepository;
 import com.archivos.shcarthrosalud.repository.UsuarioRepository;
 import com.archivos.shcarthrosalud.services.HistoriaClinicaService;
+import com.archivos.shcarthrosalud.services.PrestamoHistoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,10 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
     private HistoriaClinicaRepository historiaClinicaRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
-
+    @Autowired
+    private PrestamoHistoriaRepository prestamoHistoriaRepository;
+    @Autowired
+    private PrestamoHistoriaService prestamoHistoriaService;
 
 
     @Override
@@ -100,7 +106,7 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         return primeraLetra + String.format("%03d", siguienteNumero); // Resultado: "A012"
     }
 
-    public HistoriaClinica cambiarEstadoHC(Long idHistoria, EstadoHistoria nuevoEstado,String solicitadoPor){
+    public HistoriaClinica cambiarEstadoHC(Long idHistoria, EstadoHistoria nuevoEstado,String responsableHistoria){
 
         HistoriaClinica hc = historiaClinicaRepository.findById(idHistoria)
                 .orElseThrow(()-> new ResponseStatusException(
@@ -108,10 +114,19 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
                         "No se encontró la historia con ID" + idHistoria
                 ));
 
-        if(hc.getEstado() == EstadoHistoria.PRESTADO){
+        // 🛡️ Candado de seguridad: Evita registrar un préstamo sobre algo ya prestado
+        if (nuevoEstado == EstadoHistoria.PRESTADO && hc.getEstado() == EstadoHistoria.PRESTADO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La historia ya está prestada a: " + hc.getSolicitadoPor());
+        }
+
+
+        //  NUEVO ESTADO ES EL FRONT LA INTENCION EN ESTE CASO SI EL USUARIO QUIERE QUE ESTE DISPONIBLE HACEMOS ESTO
+        if(nuevoEstado == EstadoHistoria.DISPONIBLE){
             hc.setSolicitadoPor(null);
-        }else{
-            hc.setSolicitadoPor(solicitadoPor);
+            prestamoHistoriaService.registrarVueltaHistoria(idHistoria,responsableHistoria);
+        }else if(nuevoEstado == EstadoHistoria.PRESTADO){
+            hc.setSolicitadoPor(responsableHistoria);
+            prestamoHistoriaService.registrarSalidaHistoria(idHistoria,responsableHistoria);
         }
 
         hc.setEstado(nuevoEstado);

@@ -22,6 +22,9 @@ public class PrestamoHistoria {
     @Column(name = "receptor_prestamo", nullable = false, length = 50)
     private String receptorPrestamo;
 
+    @Column(name = "devuelto_por",nullable = true,length = 50)
+    private String devueltoPor;
+
     @Column(name = "fecha_prestamo", insertable = false, updatable = false)
     private LocalDateTime fechaPrestamo;
 

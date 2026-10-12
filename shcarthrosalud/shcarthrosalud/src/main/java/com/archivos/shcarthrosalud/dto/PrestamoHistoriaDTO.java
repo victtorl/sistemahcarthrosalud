@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class PrestamoHistoriaDTO {
     public LocalDateTime fechaPrestamo;
     public String receptorPrestamo;
+    public String devueltoPor;
     public Long idHistoria;
     public TipoTransaccion tipoTransaccion;
 }
