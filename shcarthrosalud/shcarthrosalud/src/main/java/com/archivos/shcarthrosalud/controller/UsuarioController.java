@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*") // Permite peticiones desde el frontend (Angular, React, etc.)
@@ -16,9 +18,11 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<Usuario> crearUsuario(@RequestBody UsuarioDTO usuarioDTO) {
-        Usuario nuevoUsuario = usuarioService.guardarUsuario(usuarioDTO);
-        return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
+
+
+    @GetMapping
+    public ResponseEntity<List<Usuario>> listarUsuarios() {
+        List<Usuario> lista = usuarioService.listarTodos();
+        return ResponseEntity.ok(lista);
     }
 }

@@ -24,5 +24,5 @@ public interface HistoriaClinicaService{
 
     List<HistoriaClinica> buscarPorNombreCompleto(String apellidoPaterno, String apellidoMaterno, String nombres);
 
-    HistoriaClinica cambiarEstadoHC(Long id, EstadoHistoria estado,String solicitadoPor);
+    HistoriaClinica cambiarEstadoHC(Long id, EstadoHistoria estado,Long solicitadoPor);
 }

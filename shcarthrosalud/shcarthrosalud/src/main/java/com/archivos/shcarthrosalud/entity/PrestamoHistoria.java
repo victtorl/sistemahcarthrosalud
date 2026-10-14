@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -25,8 +26,12 @@ public class PrestamoHistoria {
     @Column(name = "devuelto_por",nullable = true,length = 50)
     private String devueltoPor;
 
-    @Column(name = "fecha_prestamo", insertable = false, updatable = false)
+    @Column(name = "fecha_prestamo")
     private LocalDateTime fechaPrestamo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario",nullable = false)
+    private Usuario usuario;
 
     @Column(name = "fecha_devolucion",nullable = true)
     private LocalDateTime fechaDevolucion;
@@ -34,6 +39,8 @@ public class PrestamoHistoria {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_historia",nullable = false)
     private HistoriaClinica historiaClinica;
+
+
 
 
 }

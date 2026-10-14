@@ -15,7 +15,7 @@ function Sidebar({
   const sidebar = useRef(null);
 
   const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
-  const [sidebarExpanded, setSidebarExpanded] = useState(storedSidebarExpanded === null ? false : storedSidebarExpanded === "true");
+  const [sidebarExpanded, setSidebarExpanded] = useState(storedSidebarExpanded === null ? true : storedSidebarExpanded === "true");
 
   // close on click outside
   useEffect(() => {
@@ -179,7 +179,7 @@ function Sidebar({
                 }}
               </SidebarLinkGroup> */}
               {/* E-Commerce */}
-              <SidebarLinkGroup >
+              <SidebarLinkGroup activecondition={pathname.includes("historias") || sidebarExpanded}  >
                 {(handleClick, open) => {
                   return (
                     <React.Fragment>

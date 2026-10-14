@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
 import {  prestamoSchema } from '../lib/schemas/schemas';
 import { toast } from 'react-toastify';
-
+import { useUsuarios } from '../contexts/UsuarioContext';
 
 
 
@@ -20,6 +20,9 @@ function ModalPrestamo({
   onActualizar
 }) {
 
+  // 1. Consumimos los usuarios cargados globalmente desde el contexto
+    const { usuarios, cargandoUsuarios } = useUsuarios();
+  
 
     const {
           register,
@@ -33,14 +36,7 @@ function ModalPrestamo({
       }
     });
 
-    const solicitantes = [
-      { id: "1", nombre: "ESTHER" },
-      { id: "2", nombre: "VALERIA" },
-      { id: "3", nombre: "INGRID" },
-      { id: "4", nombre: "FANNY" },
-      { id: "4", nombre: "ZENIA" },
-      { id: "4", nombre: "VANESSA" }
-    ];
+
 
     
     const onSubmit = async (data) => {
@@ -56,7 +52,7 @@ function ModalPrestamo({
 
         const params = new URLSearchParams();
         params.append('nuevoEstado', paciente?.estado === 'PRESTADO' ? 'DISPONIBLE' : 'PRESTADO')
-        params.append('solicitadoPor',data.solicitadoPor)
+        params.append('idSolicitadoPor', data.solicitadoPor);
 
         const urlCompleta = `${API_URL}/registrar-historia-clinica/${paciente.idHistoria}/cambiar-estado?${params.toString()}`;
 
@@ -282,13 +278,13 @@ function ModalPrestamo({
                         {...register('solicitadoPor')}
                         className="block py-2.5 ps-0 w-full text-sm text-body bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer text-black dark:text-white"
                       >
-                        {/* Opción deshabilitada por defecto para forzar a elegir una válida */}
-                        <option value="" disabled >{paciente?.estado==='PRESTADO'?'¿Quién devuelve la historia?':'¿Quién solicita la historia?'}</option>
                         
+                        <option value="" disabled >{paciente?.estado==='PRESTADO'?'¿Quién devuelve la historia?':'¿Quién solicita la historia?'}</option>
+                        {/* <option value="">{cargandoUsuarios ? '-- Cargando usuarios...' : '-- Seleccione un responsable --'}</option> */}
                         {/* 3. 🔄 MAPEAMOS EL ARRAY AQUÍ */}
-                        {solicitantes.map((medico,i) => (
-                          <option key={i} value={medico.nombre}>
-                            {medico.nombre}
+                        {usuarios.map((u) => (
+                          <option key={u.idUsuario} value={u.idUsuario}>
+                            {u.nombre} 
                           </option>
                         ))}
                       </select>

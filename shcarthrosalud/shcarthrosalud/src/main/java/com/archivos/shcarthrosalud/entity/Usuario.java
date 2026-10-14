@@ -1,5 +1,6 @@
 package com.archivos.shcarthrosalud.entity;
 
+import com.archivos.shcarthrosalud.enums.TipoUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,4 +19,8 @@ public class Usuario {
 
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_usuario",length = 20)
+    private TipoUsuario tipoUsuario;
 }

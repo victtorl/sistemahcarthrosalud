@@ -106,7 +106,7 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         return primeraLetra + String.format("%03d", siguienteNumero); // Resultado: "A012"
     }
 
-    public HistoriaClinica cambiarEstadoHC(Long idHistoria, EstadoHistoria nuevoEstado,String responsableHistoria){
+    public HistoriaClinica cambiarEstadoHC(Long idHistoria, EstadoHistoria nuevoEstado,Long idResponsableHistoria){
 
         HistoriaClinica hc = historiaClinicaRepository.findById(idHistoria)
                 .orElseThrow(()-> new ResponseStatusException(
@@ -119,14 +119,20 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La historia ya está prestada a: " + hc.getSolicitadoPor());
         }
 
+        Usuario responsable = usuarioRepository.findById(idResponsableHistoria)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "El usuario con ID " + idResponsableHistoria + " no existe"
+                ));
+
 
         //  NUEVO ESTADO ES EL FRONT LA INTENCION EN ESTE CASO SI EL USUARIO QUIERE QUE ESTE DISPONIBLE HACEMOS ESTO
         if(nuevoEstado == EstadoHistoria.DISPONIBLE){
             hc.setSolicitadoPor(null);
-            prestamoHistoriaService.registrarVueltaHistoria(idHistoria,responsableHistoria);
+            prestamoHistoriaService.registrarVueltaHistoria(idHistoria,idResponsableHistoria);
         }else if(nuevoEstado == EstadoHistoria.PRESTADO){
-            hc.setSolicitadoPor(responsableHistoria);
-            prestamoHistoriaService.registrarSalidaHistoria(idHistoria,responsableHistoria);
+            hc.setSolicitadoPor(responsable.getNombre());
+            prestamoHistoriaService.registrarSalidaHistoria(idHistoria,idResponsableHistoria);
         }
 
         hc.setEstado(nuevoEstado);
