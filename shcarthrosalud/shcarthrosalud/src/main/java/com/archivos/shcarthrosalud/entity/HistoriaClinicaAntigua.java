@@ -18,13 +18,13 @@ public class HistoriaClinicaAntigua {
     @Column(name = "id_historia_clinica_antigua")
     private Long idHistoriaAntigua;
 
-    @Column(name = "dni",length = 30)
+    @Column(name = "dni",length = 50)
     private String dni;
 
-    @Column(name = "nombre_completo",length = 100)
+    @Column(name = "nombre_completo",length = 255)
     private String nombreCompleto;
 
-    @Column(name = "codigo_historia_antigua")
+    @Column(name = "codigo_historia_antigua",length = 255)
     private  String codigoHistoriaAntigua;
 
 

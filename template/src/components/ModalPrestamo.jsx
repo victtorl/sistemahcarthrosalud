@@ -4,12 +4,9 @@ import Transition from '../utils/Transition';
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
-import {  prestamoSchema } from '../lib/schemas/schemas';
+import { prestamoSchema } from '../lib/schemas/schemas';
 import { toast } from 'react-toastify';
 import { useUsuarios } from '../contexts/UsuarioContext';
-
-
-
 
 function ModalPrestamo({
   id,
@@ -21,76 +18,66 @@ function ModalPrestamo({
 }) {
 
   // 1. Consumimos los usuarios cargados globalmente desde el contexto
-    const { usuarios, cargandoUsuarios } = useUsuarios();
-  
+  const { usuarios, cargandoUsuarios } = useUsuarios();
 
-    const {
-          register,
-          handleSubmit,
-          formState:{errors,isSubmitting},
-          reset,
-      }=useForm({
-      resolver: zodResolver(prestamoSchema),
-      defaultValues: {
-        solicitadoPor: ''
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    resolver: zodResolver(prestamoSchema),
+    defaultValues: {
+      solicitadoPor: ''
+    }
+  });
+
+  const onSubmit = async (data) => {
+    if (!paciente || !paciente.idHistoria) {
+      toast.error('No se ha seleccionado ninguna historia clínica válida');
+      return;
+    }
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+
+      const params = new URLSearchParams();
+      params.append('nuevoEstado', paciente?.estado === 'PRESTADO' ? 'DISPONIBLE' : 'PRESTADO');
+      params.append('idSolicitadoPor', data.solicitadoPor);
+
+      const urlCompleta = `${API_URL}/registrar-historia-clinica/${paciente.idHistoria}/cambiar-estado?${params.toString()}`;
+
+      const response = await fetch(urlCompleta, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const textoRespuesta = await response.text();
+
+      if (!response.ok) {
+        const mensajeLimpio = textoRespuesta
+          .replace(/^[0-9]{3}\s+[A-Z_]+\s*"?/, '') // Elimina '400 BAD_REQUEST "'
+          .replace(/"$/, '');                       // Elimina las comillas del final
+
+        toast.error(mensajeLimpio || 'Error al procesar el préstamo');
+        return;
       }
-    });
-
-
-
-    
-    const onSubmit = async (data) => {
-
-
-      if(!paciente || !paciente.idHistoria){
-        toast.error('No se ha seleccionado ninguna historia clínica válida');
-        return
+      if(paciente?.estado=='DISPONIBLE')
+      toast.success('¡Historia clínica prestada, ojala vuelva!');
+      if(paciente?.estado=='PRESTADO')
+      toast.success('¡Historia clínica vuelve a estar disponible mi king!');
+      if (onActualizar) {
+        await onActualizar();
       }
-
-      try {
-        const API_URL = import.meta.env.VITE_API_URL;
-
-        const params = new URLSearchParams();
-        params.append('nuevoEstado', paciente?.estado === 'PRESTADO' ? 'DISPONIBLE' : 'PRESTADO')
-        params.append('idSolicitadoPor', data.solicitadoPor);
-
-        const urlCompleta = `${API_URL}/registrar-historia-clinica/${paciente.idHistoria}/cambiar-estado?${params.toString()}`;
-
-
-        const response = await fetch(urlCompleta, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-    
-        const textoRespuesta = await response.text();
-    
-        if (!response.ok) {
-      // Limpiamos el texto por si incluye el prefijo '400 BAD_REQUEST'
-          const mensajeLimpio = textoRespuesta
-            .replace(/^[0-9]{3}\s+[A-Z_]+\s*"?/, '') // Elimina '400 BAD_REQUEST "'
-            .replace(/"$/, '');                       // Elimina las comillas del final
-    
-          toast.error(mensajeLimpio || 'Error al procesar el préstamo');
-          return;
-        }
-
-        // 3. Si la respuesta fue exitosa
-        toast.success('¡Historia clínica prestada, ojala vuelva!');
-        console.log('Respuesta del servidor:');
-             if (onActualizar) {
-                await onActualizar(); 
-              }
-        reset();
-        setModalOpen(false)
-      } 
-      catch (error) {
-        console.error('Error de red o conexión:', error);
-      }
-    };
-    
-
+      reset();
+      setModalOpen(false);
+    } catch (error) {
+      console.error('Error de red o conexión:', error);
+      toast.error('No se pudo conectar con el servidor');
+    }
+  };
 
   const modalContent = useRef(null);
 
@@ -108,7 +95,7 @@ function ModalPrestamo({
     };
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
-  },[modalOpen]);
+  }, [modalOpen]);
 
   // close if the esc key is pressed
   useEffect(() => {
@@ -119,10 +106,6 @@ function ModalPrestamo({
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-
-  useEffect(() => {
-
-  }, [modalOpen]);
 
   return (
     <>
@@ -154,160 +137,100 @@ function ModalPrestamo({
       >
         <div
           ref={modalContent}
-          className="bg-white dark:bg-gray-800 border border-transparent dark:border-gray-700/60 overflow-auto max-w-2xl w-full max-h-full rounded-lg shadow-lg"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 overflow-auto max-w-2xl w-full max-h-full rounded-lg shadow-lg"
         >
-          {/* Search form */}
-          <form className="border-b border-gray-200 dark:border-gray-700/60">
-   
+          <div className="py-4 px-4">
             {/* DATOS DEL PACIENTE */}
-          </form>
-          <div className="py-4 px-2">
-            {/* Recent searches */}
-            <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2 mb-2">Datos del paciente</div>
-              <ul className="text-sm">
+            <div className="mb-4 last:mb-0">
+              <div className="text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase px-2 mb-3">
+                Datos del paciente
+              </div>
+              
+              <ul className="text-sm space-y-1">
                 <li>
-                  <div
-                    className="flex items-center  p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                  >
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2">Apellido Paterno</div>
-                    <span>{paciente?.apellidoPaterno}</span>
+                  <div className="flex items-center justify-between p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Apellido Paterno</div>
+                    <span className="font-medium text-gray-900 dark:text-white">{paciente?.apellidoPaterno || '-'}</span>
                   </div>
                 </li>
+
                 <li>
-                  <div
-                    className="flex items-center  p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                  >
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2">Apellido Materno</div>
-                    <span>{paciente?.apellidoMaterno}</span>
+                  <div className="flex items-center justify-between p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Apellido Materno</div>
+                    <span className="font-medium text-gray-900 dark:text-white">{paciente?.apellidoMaterno || '-'}</span>
                   </div>
                 </li>
+
                 <li>
-                  <div
-                    className="flex items-center  p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                  >
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2">Nombres</div>
-                    <span>{paciente?.nombres}</span>
+                  <div className="flex items-center justify-between p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Nombres</div>
+                    <span className="font-medium text-gray-900 dark:text-white">{paciente?.nombres || '-'}</span>
                   </div>
                 </li>
+
                 <li>
-                  <div
-                    className="flex items-center  p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                  >
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2">Estado</div>
-                    <span>{paciente?.estado}</span>
+                  <div className="flex items-center justify-between p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Estado</div>
+                    <span className="font-medium text-gray-900 dark:text-white">{paciente?.estado || '-'}</span>
                   </div>
                 </li>
-                 <li>
-                  <div
-                    className="flex items-center  p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                  >
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2">DNI / CE</div>
-                    <span>{paciente?.dni}</span>
+
+                <li>
+                  <div className="flex items-center justify-between p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">DNI / CE</div>
+                    <span className="font-medium text-gray-900 dark:text-white">{paciente?.dni || '-'}</span>
                   </div>
                 </li>
+
                 <li>
-                  <div
-                    className="flex items-center  p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                  >
-                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2">Asignado a</div>
-                    <span className={paciente?.estado === "PRESTADO" ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-400 dark:text-gray-500 italic"}
-                    >{ paciente?.estado === "PRESTADO" ? paciente?.solicitadoPor :'NADIE' }
+                  <div className="flex items-center justify-between p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Asignado a</div>
+                    <span className={paciente?.estado === "PRESTADO" ? "text-gray-900 dark:text-white font-medium" : "text-gray-400 dark:text-gray-400 italic"}>
+                      {paciente?.estado === "PRESTADO" ? paciente?.solicitadoPor : 'NADIE'}
                     </span>
                   </div>
                 </li>
-             
               </ul>
             </div>
-            {/* Recent pages */}
-            <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-2 mb-2">REALIZAR PRESTAMO</div>
-              {/* <ul className="text-sm">
-                <li>
-                  <Link
-                    className="flex items-center p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                    onClick={() => setModalOpen(!modalOpen)}
+
+            {/* SECCIÓN FORMULARIO PRESTAMO */}
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700/60">
+              <div className="text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase px-2 mb-3">
+                REALIZAR PRÉSTAMO
+              </div>
+
+              <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto space-y-4">
+                <div>
+                  <select 
+                    id="underline_select" 
+                    {...register('solicitadoPor')}
+                    className="block py-2.5 px-2 w-full text-sm text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-gray-300 dark:border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600"
                   >
-                    <svg
-                  className="fill-current text-gray-400 dark:text-gray-500 shrink-0 mr-3"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                    >
-                      <path d="M14 0H2c-.6 0-1 .4-1 1v14c0 .6.4 1 1 1h8l5-5V1c0-.6-.4-1-1-1zM3 2h10v8H9v4H3V2z" />
-                    </svg>
-                    <span>
-                      <span className="font-medium">Messages</span> -{' '}
-                      <span className="text-gray-600 dark:text-gray-400">Conversation / … / Mike Mills</span>
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="flex items-center p-2 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700/20 rounded-lg"
-                    to="#0"
-                    onClick={() => setModalOpen(!modalOpen)}
-                  >
-                    <svg
-                  className="fill-current text-gray-400 dark:text-gray-500 shrink-0 mr-3"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                    >
-                      <path d="M14 0H2c-.6 0-1 .4-1 1v14c0 .6.4 1 1 1h8l5-5V1c0-.6-.4-1-1-1zM3 2h10v8H9v4H3V2z" />
-                    </svg>
-                    <span>
-                      <span className="font-medium">Messages</span> -{' '}
-                      <span className="text-gray-600 dark:text-gray-400">Conversation / … / Eva Patrick</span>
-                    </span>
-                  </Link>
-                </li>
-              </ul> */}
+                    <option value="" disabled className="bg-white dark:bg-gray-800 text-gray-500">
+                      {paciente?.estado === 'PRESTADO' ? '¿Quién devuelve la historia?' : '¿Quién solicita la historia?'}
+                    </option>
 
-                  <form onSubmit={handleSubmit(onSubmit)}  className="max-w-sm mx-auto">
-                      {/* <label  className="sr-only">¿Quien solicita la historia?</label> */}
-                      <select 
-                        id="underline_select" 
-                        {...register('solicitadoPor')}
-                        className="block py-2.5 ps-0 w-full text-sm text-body bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer text-black dark:text-white"
-                      >
-                        
-                        <option value="" disabled >{paciente?.estado==='PRESTADO'?'¿Quién devuelve la historia?':'¿Quién solicita la historia?'}</option>
-                        {/* <option value="">{cargandoUsuarios ? '-- Cargando usuarios...' : '-- Seleccione un responsable --'}</option> */}
-                        {/* 3. 🔄 MAPEAMOS EL ARRAY AQUÍ */}
-                        {usuarios.map((u) => (
-                          <option key={u.idUsuario} value={u.idUsuario}>
-                            {u.nombre} 
-                          </option>
-                        ))}
-                      </select>
+                    {usuarios.map((u) => (
+                      <option key={u.idUsuario} value={u.idUsuario} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                        {u.nombre} [{u.tipoUsuario}]
+                      </option>
+                    ))}
+                  </select>
 
-                      {errors.solicitadoPor && (
-                          <p className="mt-1 text-xs text-red-500">{errors.solicitadoPor.message}</p>
-                        )}
+                  {errors.solicitadoPor && (
+                    <p className="mt-1 text-xs text-red-500">{errors.solicitadoPor.message}</p>
+                  )}
+                </div>
 
-
-
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className={`w-full rounded  p-2 text-white  disabled:opacity-50
-                            ${paciente?.estado === "PRESTADO" ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}`}
-                        >
-                          {isSubmitting ? 'Enviando...' :paciente?.estado==="PRESTADO" ? 'DEVOLVER' : 'PRESTAR' }
-                        </button>
-
-                  </form>
-                                      
-      
-
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full rounded p-2 text-white font-medium transition-colors disabled:opacity-50
+                    ${paciente?.estado === "PRESTADO" ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}`}
+                >
+                  {isSubmitting ? 'Enviando...' : paciente?.estado === "PRESTADO" ? 'DEVOLVER' : 'PRESTAR'}
+                </button>
+              </form>
             </div>
           </div>
         </div>
