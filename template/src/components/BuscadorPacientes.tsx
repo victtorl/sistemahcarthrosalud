@@ -173,6 +173,7 @@ export default function BuscadorPaciente(){
                           {hc.estado === "PRESTADO" ?'DVOLVER':'PRESTAR'}
                         </button>
 
+                        
                         <ModalPrestamo id="search-modal" 
                         searchId="search" 
                         modalOpen={searchModalOpen} 
@@ -180,7 +181,6 @@ export default function BuscadorPaciente(){
                         paciente={pacienteSeleccionado} 
                         onActualizar={handleSubmit(onSubmit)}
                         />
-                        
                       </td>
                     </tr>
                   ))}

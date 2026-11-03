@@ -23,6 +23,12 @@ export const registerPatientSchema = z.object({
 export type RegisterPatientFormData = z.infer<typeof registerPatientSchema>
 
 
+export const searchPatientOldSchema=z.object({
+    nombreCompleto:z.string().nonempty("Debes escibir almenos un indicio del nombre")
+})
+export type SeachPatientOldFormData = z.infer<typeof searchPatientOldSchema>
+
+
 
 export const prestamoSchema = z.object({
     solicitadoPor:z.string().nonempty("Debes seleccionar a alguien")

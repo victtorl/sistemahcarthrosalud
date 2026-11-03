@@ -51,10 +51,7 @@ public class PrestamoHistoriaServiceImpl implements PrestamoHistoriaService {
     @Override
     public PrestamoHistoria registrarVueltaHistoria(Long idHistoria,Long idDevueltoPor) {
         PrestamoHistoria prestamoActivo = prestamoHistoriaRepository.findFirstByHistoriaClinicaIdHistoriaAndFechaDevolucionIsNullOrderByFechaPrestamoDesc(idHistoria)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "No se encontró ningún préstamo activo para esta historia clínica"
-                ));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encontró ningún préstamo activo para esta historia clínica"));
         Usuario usuario = usuarioRepository.findById(idDevueltoPor)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El usuario solicitante no existe"));
 

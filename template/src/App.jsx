@@ -12,6 +12,7 @@ import './charts/ChartjsConfig';
 // Import pages
 import Dashboard from './pages/Dashboard';
 import BuscarHc from './pages/BuscarHc'
+import BuscarHcAntigua from './pages/hc_anteriores/BuscarHcAntigua'
 import RegistrarHc from './pages/RegistrarHc'
 import { ToastContainer } from 'react-toastify';
 
@@ -31,6 +32,7 @@ function App() {
         <Route exact path="/" element={<Dashboard />} />
         <Route exact path="/buscar-hc" element={<BuscarHc/>}/>
         <Route exact path="/registrar-hc" element={<RegistrarHc/>}/>
+        <Route exact path="/buscar-por-inicio" element={<BuscarHcAntigua/>}/>
       </Routes>
 
         <ToastContainer
