@@ -14,8 +14,15 @@ export function UsuarioProvider({ children }) {
         // Obtenemos la URL base de tus variables de entorno
         const API_URL = import.meta.env.VITE_API_URL;
 
-        // 🔥 REEMPLAZADO: Usamos fetch en lugar de axios
-        const response = await fetch(`${API_URL}/usuarios`);
+        const token = localStorage.getItem('token');
+
+        const response = await fetch(`${API_URL}/usuarios`, {
+          method:'GET',
+          headers:{
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
         
         if (!response.ok) {
           throw new Error(`Error en el servidor: ${response.status}`);

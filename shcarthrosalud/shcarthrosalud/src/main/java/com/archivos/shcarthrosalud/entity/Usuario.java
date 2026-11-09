@@ -17,8 +17,15 @@ public class Usuario {
     @Column(name = "id_usuario")
     private Long idUsuario;
 
+    @Column(name = "id_nombre")
+    private String idNombre;
+
+    @Column(name = "password")
+    private String password;
+
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_usuario",length = 20)

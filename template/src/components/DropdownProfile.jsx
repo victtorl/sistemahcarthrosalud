@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Transition from '../utils/Transition';
 
 import UserAvatar from '../images/user-avatar-32.png';
+import { toast } from 'react-toastify';
 
 function DropdownProfile({
   align
@@ -33,6 +34,13 @@ function DropdownProfile({
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
+
+  //cerrar sesion
+    function logOut(){
+        localStorage.removeItem('token')
+        setDropdownOpen(!dropdownOpen)
+        toast.success('Sesión Cerrada, Bay!');
+    }
 
   return (
     <div className="relative inline-flex">
@@ -84,8 +92,8 @@ function DropdownProfile({
             <li>
               <Link
                 className="font-medium text-sm text-violet-500 hover:text-violet-600 dark:hover:text-violet-400 flex items-center py-1 px-3"
-                to="/signin"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                to="/auth"
+                onClick={() => logOut()}
               >
                 Sign Out
               </Link>

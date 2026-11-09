@@ -41,6 +41,7 @@ export default function BuscadorPaciente(){
   const onSubmit = async (data: RegisterPatientFormData) => {
     try {
       const API_URL = (import.meta as any).env.VITE_API_URL;
+      const token = localStorage.getItem('token');
 
       const params = new URLSearchParams();
        if (data.apellidoPaterno) params.append('apellidoPaterno', data.apellidoPaterno);
@@ -52,8 +53,9 @@ export default function BuscadorPaciente(){
       const response = await fetch(urlCompleta, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-        }
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      }
       });
   
       const textoRespuesta = await response.text();

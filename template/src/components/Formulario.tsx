@@ -26,11 +26,14 @@ export default function Formulario(){
 const onSubmit = async (data: RegisterFormData) => {
   try {
     const API_URL = (import.meta as any).env.VITE_API_URL;
+    const token = localStorage.getItem('token');
+    
 
     const response = await fetch(`${API_URL}/registrar-historia-clinica`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(data),
     });

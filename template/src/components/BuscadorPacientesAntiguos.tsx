@@ -40,6 +40,7 @@ export default function BuscadorPacientesAntiguos(){
   const onSubmit = async (data: SeachPatientOldFormData) => {
     try {
       const API_URL = (import.meta as any).env.VITE_API_URL;
+      const token = localStorage.getItem('token');
 
       const params = new URLSearchParams();
        if (data.nombreCompleto) params.append('nombreCompleto', data.nombreCompleto);
@@ -50,6 +51,7 @@ export default function BuscadorPacientesAntiguos(){
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
   

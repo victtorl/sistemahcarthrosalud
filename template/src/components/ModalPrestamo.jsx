@@ -40,6 +40,7 @@ function ModalPrestamo({
 
     try {
       const API_URL = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem('token');
 
       const params = new URLSearchParams();
       params.append('nuevoEstado', paciente?.estado === 'PRESTADO' ? 'DISPONIBLE' : 'PRESTADO');
@@ -51,6 +52,7 @@ function ModalPrestamo({
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
         },
       });
 
